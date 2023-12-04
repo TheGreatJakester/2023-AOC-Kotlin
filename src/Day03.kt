@@ -5,6 +5,7 @@ import utils.*
 import utils.grid.filterCells
 import utils.grid.toGrid
 import utils.numbers.lengthInBase10
+import utils.string.asLines
 
 private typealias SolutionType = Long
 
@@ -23,24 +24,33 @@ sealed class CellType {
 
 
 private fun part1(input: String): SolutionType {
-    val grid = input.toGrid("\\d+|\\S") {
-        if (it == ".") return@toGrid CellType.Blank
-        it.toLongOrNull()?.let { return@toGrid CellType.Number(it) }
-        return@toGrid CellType.Symbol(it.first())
-    }
+    val lines = input.asLines()
+    val width = lines.first().length
+    val blankLine = ".".repeat(width)
+    val paddedLines = listOf(blankLine, *lines.toTypedArray(), blankLine)
 
-    return grid
-        .filterCells { it is CellType.Number }
-        .filter {
-            val number = it.value as CellType.Number
-            val surroundingCells = it.getAdjacentCells(number.value.lengthInBase10())
+    val symbolRegex = "[^(\\d|\\.)]".toRegex()
+    val numberRegex = "\\d+".toRegex()
 
-            surroundingCells.any { adj ->
-                adj.value is CellType.Symbol
+
+    val partNumbers = paddedLines.windowed(3) { window ->
+        val current = window[1]
+
+        val matches = numberRegex.findAll(current)
+
+        val partNumberMatches = matches.filter {
+            val start = it.range.first.dec().coerceAtLeast(0)
+            val end = it.range.last.inc().inc().coerceAtMost(width)
+
+            window.any { line ->
+                val sub = line.subSequence(start, end)
+                sub.contains(symbolRegex)
             }
-        }.sumOf {
-            (it.value as? CellType.Number)?.value ?: 0L
-        }
+        }.map { it.value.toLong() }.toList()
+        return@windowed partNumberMatches
+    }.flatten()
+
+    return partNumbers.sum()
 }
 
 private fun part2(input: String): SolutionType {
@@ -53,7 +63,7 @@ fun main() {
         checkOrGetInput(day = 3)
     }
     runSolver("Test 1", sampleInput, testSolution1, ::part1)
-    //runSolver("Part 1", readInputAsText("Day${dayNumber}"), null, ::part1)
+    runSolver("Part 1", readInputAsText("Day${dayNumber}"), null, ::part1)
 
     //runSolver("Test 2", sampleInput, testSolution2, ::part2)
     //runSolver("Part 2", readInputAsText("Day${dayNumber}"), null, ::part2)
