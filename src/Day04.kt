@@ -2,10 +2,11 @@ package day4
 
 import kotlinx.coroutines.runBlocking
 import utils.*
+import utils.numbers.sumOfInts
+import utils.numbers.sumOfLongs
 import utils.string.asLines
 import java.lang.Math.pow
 import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 
 private typealias SolutionType = Int
 
@@ -31,20 +32,13 @@ private fun part1(input: String): SolutionType {
 
 }
 
-fun <T : Any> MutableMap<T, Int>.increment(key: T) {
-    val old = getOrDefault(key, 0)
-    put(key, old + 1)
-}
-
-fun countCopies(cardWins: Map<Int, Int>, cardCounts: MutableMap<Int, Int>, cardNumber: Int) {
+fun countCopies(cardWins: Map<Int, Int>, cardNumber: Int): Int {
     val wins = cardWins.getOrDefault(cardNumber, 0)
 
-    repeat(wins) {
-        val cardIndex = cardNumber + it + 1
-        countCopies(cardWins, cardCounts, cardIndex)
-        cardCounts.increment(cardIndex)
-    }
-
+    return sumOfInts(wins) {
+        val nextCardNumber = cardNumber + it + 1
+        countCopies(cardWins, nextCardNumber)
+    } + 1
 }
 
 private fun part2(input: String): SolutionType {
@@ -61,15 +55,10 @@ private fun part2(input: String): SolutionType {
         cardInt to winningCount
     }
 
-    val cardCounts = mutableMapOf<Int, Int>()
 
-    repeat(cardMap.count()) {
-        val cardNumber = it + 1
-        countCopies(cardMap, cardCounts, cardNumber)
+    return sumOfInts(cardMap.count()) {
+        countCopies(cardMap, it + 1)
     }
-
-
-    return cardCounts.values.sum() + cardMap.count()
 }
 
 
