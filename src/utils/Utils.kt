@@ -74,7 +74,7 @@ private const val WAIT_MUL = 500.0
 // Seconds under which we switch into wait and pounce mode.
 private const val DELAY_TIME = 120L
 
-suspend fun checkOrGetInput(year: Int = 2022, day: Int, dataDir: File = File("src")): String {
+suspend fun checkOrGetInput(year: Int = 2023, day: Int, dataDir: File = File("src")): String {
     val dayFileName = String.format("day%02d.txt", day)
     val dataFile = File(dataDir, dayFileName)
     if (dataFile.exists()) {
