@@ -29,16 +29,6 @@ fun readInputAsLines(name: String) = File("src", "$name.txt")
 
 fun readInputAsText(name: String) = File("src", "$name.txt").readText()
 
-
-fun <T> List<List<T>>.forForEach(lambda: (x: Int, y: Int, el: T) -> Unit) {
-    this.forEachIndexed { y, sub ->
-        sub.forEachIndexed { x, el ->
-            lambda(x, y, el)
-        }
-    }
-}
-
-
 fun <SolutionType, InputType> runSolver(
     runName: String,
     input: InputType,
